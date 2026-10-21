@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FinWise AI</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#f2f5ef;--card:#fff;--ink:#14272b;--mut:#5b6e70;--line:#d7dfd6;--pri:#0b6e6e;--onpri:#fff;--warn:#c2410c;--bad:#b91c1c;--ok:#15803d;--mark:#fde68a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b1d;--card:#172a2d;--ink:#e6efee;--mut:#98adaf;--line:#2a4144;--pri:#3fb8b0;--onpri:#06201f;--warn:#fb923c;--bad:#f87171;--ok:#4ade80;--mark:#6b5a12}}
+:root[data-theme="dark"]{--bg:#0f1b1d;--card:#172a2d;--ink:#e6efee;--mut:#98adaf;--line:#2a4144;--pri:#3fb8b0;--onpri:#06201f;--warn:#fb923c;--bad:#f87171;--ok:#4ade80;--mark:#6b5a12}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+h1{font-size:1.9rem;margin:8px 0 2px;font-weight:800;letter-spacing:-.02em}h2{font-size:1.2rem;margin:0 0 8px}
+.sub{color:var(--mut);margin:0 0 14px}
+nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px}
+nav button{white-space:nowrap}
+button,input,textarea,select{font:inherit;color:inherit}
+button{border:1px solid var(--line);background:var(--card);padding:8px 14px;border-radius:8px;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+button.on,button.p{background:var(--pri);color:var(--onpri);border-color:var(--pri);font-weight:600}
+input,textarea,select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+textarea{min-height:130px;resize:vertical}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:0 0 auto}.grow{flex:1 1 140px!important}
+.chips button{font-size:.85rem;padding:5px 10px;color:var(--mut)}
+mark{background:var(--mark);color:inherit;padding:0 2px;border-radius:3px}
+.meter{height:12px;background:var(--line);border-radius:6px;overflow:hidden;margin:8px 0}.meter i{display:block;height:100%;transition:width .4s}
+.big{font-size:2.2rem;font-weight:800;line-height:1}
+.hide{display:none}.mut{color:var(--mut)}.ok{color:var(--ok)}.bad{color:var(--bad)}
+.tbl{width:100%;border-collapse:collapse}.tbl td,.tbl th{padding:8px 4px;border-bottom:1px solid var(--line);text-align:left;font-weight:400}
+.tbl th{color:var(--mut);font-size:.85rem}
+.scroll{overflow-x:auto}
+.msg{padding:10px 12px;border-radius:10px;margin:8px 0;max-width:92%}.u{background:var(--pri);color:var(--onpri);margin-left:auto}.a{background:var(--bg);border:1px solid var(--line)}
+.note{font-size:.85rem;color:var(--mut);border-left:3px solid var(--warn);padding-left:10px;margin:10px 0}
+ul{padding-left:20px;margin:6px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>FinWise AI</h1>
+<p class="sub">Learn money, spot scams, practise investing with virtual cash. Education only, not personal financial advice.</p>
+<nav id="tabs">
+<button data-t="scam" class="on">Scam Detector</button>
+<button data-t="sim">Investment Simulator</button>
+<button data-t="tutor">Finance Tutor</button>
+<button data-t="budget">Budget &amp; Goals</button>
+</nav>
+
+<section id="scam">
+<div class="card">
+<h2>Paste a suspicious message</h2>
+<textarea id="smsg" placeholder="Paste an SMS, WhatsApp, email or Telegram message…"></textarea>
+<div class="row chips" style="margin:8px 0">
+<span class="mut">Try:</span>
+<button data-s="0">KYC alert</button><button data-s="1">Telegram tips</button><button data-s="2">Lottery</button><button data-s="3">Normal bank SMS</button>
+</div>
+<button class="p" id="sgo">Check message</button>
+</div>
+<div id="sres" class="card hide"></div>
+</section>
+
+<section id="sim" class="hide">
+<div class="card">
+<div class="row">
+<div class="grow"><div class="mut">Net worth (virtual)</div><div class="big" id="nw"></div><div id="pl"></div></div>
+<div class="grow"><div class="mut">Cash</div><div class="big" id="cash" style="font-size:1.5rem"></div><div class="mut" id="day"></div></div>
+</div>
+<svg id="chart" viewBox="0 0 600 120" width="100%" height="120" role="img" aria-label="Net worth over time"></svg>
+<div class="note">Simulation only. All assets and prices are fictional, and no real trades are ever made.</div>
+</div>
+<div class="card">
+<div class="row" style="margin-bottom:8px">
+<label class="mut">Quantity <input id="qty" type="number" min="1" value="10" style="width:90px"></label>
+<button class="p" id="next">Next day</button>
+<button id="next5">Skip 5 days</button>
+<button id="reset">Reset</button>
+</div>
+<div class="scroll"><table class="tbl" id="mkt"></table></div>
+</div>
+<div class="card"><h2>What happened and why</h2><div id="lesson" class="mut">Buy something, then press “Next day” to see how markets move.</div></div>
+</section>
+
+<section id="tutor" class="hide">
+<div class="card">
+<div id="chat" aria-live="polite"><div class="msg a">Hi, I’m your finance tutor. Ask me about SIPs, compound interest, budgeting, inflation, scams and more.</div></div>
+<div class="row chips" id="sugg" style="margin:8px 0"></div>
+<div class="row"><input id="q" class="grow" placeholder="Ask a money question…"><button class="p" id="ask">Ask</button></div>
+<div class="note">Educational answers only. For decisions about your own money, talk to a SEBI-registered advisor.</div>
+</div>
+<div class="card">
+<h2>SIP / compound interest calculator</h2>
+<div class="row">
+<label class="grow">Monthly (₹)<input id="c1" type="number" value="2000"></label>
+<label class="grow">Return % / year<input id="c2" type="number" value="12"></label>
+<label class="grow">Years<input id="c3" type="number" value="10"></label>
+</div>
+<div id="cres" style="margin-top:10px"></div>
+<div class="mut" style="font-size:.85rem">Illustration with an assumed constant return. Real returns vary and are never guaranteed.</div>
+</div>
+</section>
+
+<section id="budget" class="hide">
+<div class="card">
+<h2>Split your monthly money</h2>
+<div class="row">
+<label class="grow">Monthly money (₹)<input id="inc" type="number" value="10000"></label>
+<label class="grow">Needs %<input id="pn" type="number" value="50"></label>
+<label class="grow">Wants %<input id="pw" type="number" value="30"></label>
+<label class="grow">Savings %<input id="ps" type="number" value="20"></label>
+</div>
+<div id="bres" style="margin-top:10px"></div>
+</div>
+<div class="card">
+<h2>Savings goal</h2>
+<div class="row">
+<label class="grow">Goal<input id="gn" value="Laptop"></label>
+<label class="grow">Target (₹)<input id="gt" type="number" value="60000"></label>
+<label class="grow">Saved so far (₹)<input id="gs" type="number" value="5000"></label>
+<label class="grow">Months<input id="gm" type="number" value="10"></label>
+</div>
+<div id="gres" style="margin-top:10px"></div>
+</div>
+</section>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{const v=localStorage.getItem('fw_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('fw_'+k,JSON.stringify(v))}catch(e){}}};
+const inr=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* tabs */
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  ['scam','sim','tutor','budget'].forEach(t=>$('#'+t).classList.toggle('hide',t!==b.dataset.t));
+});
+
+/* ---------- Scam detector ---------- */
+const RULES=[
+ [/urgent(ly)?|immediately|within \d+ ?(hours?|hrs?|minutes?|mins?)|last chance|expires?( today)?|act now|today only/gi,15,'Pressure and urgency','Scammers rush you so you don’t stop to think or check.'],
+ [/guarantee[d]?|assured returns?|risk[- ]free|100% (safe|profit)|double your money|\d{2,}% (daily|weekly|monthly)|sure ?shot/gi,25,'Guaranteed or unrealistic returns','No real investment is risk-free. Huge, fixed returns are the classic sign of a scam.'],
+ [/\botp\b|upi ?pin|\bcvv\b|password|share (your )?(pin|code)/gi,30,'Asks for secret codes','Banks and UPI apps never ask for your OTP, PIN or CVV.'],
+ [/https?:\/\/\S+|bit\.ly\S*|tinyurl\S*|t\.me\/\S+|\b\w+\.(xyz|top|click|info)\b/gi,15,'Suspicious link','Shortened or odd links often lead to fake login pages. Open the official app or site yourself.'],
+ [/\bkyc\b|account (will be |is )?(blocked|suspended|frozen|closed)|verify your account|update your (pan|aadhaar)/gi,20,'Fake KYC or account-block threat','This is a common phishing script that imitates banks and wallets.'],
+ [/\bwon\b|lottery|lucky draw|prize|claim your (reward|cashback)|congratulations/gi,20,'Prize you never entered for','You can’t win a contest you didn’t join.'],
+ [/processing fee|registration fee|advance fee|pay .{0,30}to (receive|release|unlock|withdraw)|send ₹? ?\d+/gi,25,'Asks you to pay first','Real prizes and refunds never need upfront fees.'],
+ [/whatsapp group|telegram|vip (group|tips?)|insider (tip|info)|join (our|my) (group|channel)/gi,20,'Tip group or channel','Pump-and-dump groups push you to buy while insiders sell. Unregistered tipsters are illegal in India.'],
+ [/anydesk|teamviewer|quicksupport|install (this |the )?(app|apk)|\.apk/gi,30,'Asks you to install an app','Remote-access apps let scammers see your screen and empty your account.']
+];
+const SAMPLES=[
+ 'URGENT: Your SBI account will be blocked today! Complete KYC immediately: http://sbi-kyc-update.xyz/login and share the OTP.',
+ 'Join our VIP Telegram group! Sure shot tips, guaranteed 40% monthly returns, risk-free. Limited seats, act now: t.me/profitking99',
+ 'Congratulations! You won ₹25,00,000 in the lucky draw. Pay a processing fee of ₹4,999 to release your prize.',
+ 'Rs 1,250.00 debited from A/c XX4821 on 20-Oct at AMAZON. If not you, call the number on the back of your card. Avl bal Rs 8,340.12.'
+];
+document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{$('#smsg').value=SAMPLES[b.dataset.s];analyze()});
+$('#sgo').onclick=analyze;
+function analyze(){
+  const t=$('#smsg').value.trim();if(!t)return;
+  let score=0,ranges=[],hits=[];
+  RULES.forEach(([re,w,name,why])=>{re.lastIndex=0;let m,found=false;while((m=re.exec(t))){found=true;ranges.push([m.index,m.index+m[0].length]);if(m[0].length===0)re.lastIndex++}
+    if(found){score+=w;hits.push([name,why,w])}});
+  score=Math.min(100,score);
+  ranges.sort((a,b)=>a[0]-b[0]);const merged=[];
+  ranges.forEach(r=>{const l=merged[merged.length-1];if(l&&r[0]<=l[1])l[1]=Math.max(l[1],r[1]);else merged.push(r.slice())});
+  let html='',p=0;merged.forEach(([s,e])=>{html+=esc(t.slice(p,s))+'<mark>'+esc(t.slice(s,e))+'</mark>';p=e});html+=esc(t.slice(p));
+  const lvl=score>=50?['Likely a scam','var(--bad)']:score>=20?['Suspicious, be careful','var(--warn)']:['Few warning signs found','var(--ok)'];
+  let h=`<div class="big" style="color:${lvl[1]}">${lvl[0]}</div><div class="mut">Risk score ${score}/100</div>
+  <div class="meter"><i style="width:${score}%;background:${lvl[1]}"></i></div>
+  <p style="white-space:pre-wrap">${html}</p>`;
+  if(hits.length){h+='<h2>Warning signs found</h2><ul>'+hits.sort((a,b)=>b[2]-a[2]).map(x=>`<li><b>${x[0]}.</b> ${x[1]}</li>`).join('')+'</ul>'}
+  else h+='<p>No common scam patterns matched. That doesn’t prove it’s safe. If it asks for money or codes, verify through the official app or number.</p>';
+  h+=`<div class="note">${score>=20?'Don’t click links, reply, or share codes. If you already lost money, call 1930 or report at cybercrime.gov.in right away.':'Rule-based check for learning. Always verify through official channels.'}</div>`;
+  const r=$('#sres');r.innerHTML=h;r.classList.remove('hide');
+}
+
+/* ---------- Simulator ---------- */
+const ASSETS=[
+ {id:'IDX',n:'Broad Index Fund',v:.008,d:.0004,p:100},
+ {id:'BNK',n:'SafeBank Ltd',v:.015,d:.0003,p:250},
+ {id:'TEC',n:'TechNova Ltd',v:.025,d:.0005,p:400},
+ {id:'GLD',n:'Gold Fund',v:.006,d:.0002,p:60},
+ {id:'HYP',n:'HypeCoin Token',v:.07,d:-.001,p:50}
+];
+const EVENTS=[
+ ['TEC',-.14,'TechNova missed earnings and fell. Lesson: one company can drop sharply, so spreading money across assets (diversification) cushions the blow.'],
+ ['TEC',.12,'TechNova announced a big contract and jumped. Lesson: gains feel great, but don’t chase a stock after it has already surged.'],
+ ['HYP',-.35,'HypeCoin crashed after influencers stopped promoting it. Lesson: hype-driven assets can lose most of their value fast. This is how pump-and-dump scams work.'],
+ ['HYP',.3,'HypeCoin spiked on social media buzz. Lesson: sudden spikes with no real business behind them often reverse.'],
+ ['BNK',-.06,'SafeBank dipped on a rate change. Lesson: even stable sectors react to the economy.'],
+ ['IDX',-.05,'The whole market slipped a little. Lesson: index funds fall too, but they recover as the overall economy grows over long periods.'],
+ ['GLD',.05,'Gold rose as investors got nervous. Lesson: some assets hold up when shares fall, which is why mixing assets helps.']
+];
+const randn=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+let S=store.get('sim',null);
+function fresh(){const px={};ASSETS.forEach(a=>px[a.id]=[a.p]);return{day:0,cash:100000,hold:{},nw:[100000],px,lesson:''}}
+if(!S||!S.px)S=fresh();
+const price=a=>S.px[a.id][S.px[a.id].length-1];
+const netw=()=>S.cash+ASSETS.reduce((s,a)=>s+(S.hold[a.id]||0)*price(a),0);
+function step(){
+  S.day++;let ev=null;
+  if(Math.random()<.2)ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];
+  ASSETS.forEach(a=>{let r=a.d+a.v*randn();if(ev&&ev[0]===a.id)r+=ev[1];S.px[a.id].push(Math.max(1,price(a)*(1+r)))});
+  S.nw.push(netw());
+  const nw=netw();let note='';
+  ASSETS.forEach(a=>{const val=(S.hold[a.id]||0)*price(a);if(nw>0&&val/nw>.6)note=`<br><b>Heads up:</b> over 60% of your money is in ${esc(a.n)}. Concentrated bets raise your risk.`});
+  S.lesson=ev?ev[2]+note:(S.lesson&&S.lesson.startsWith('Quiet')?'Quiet day, prices drifted a little.':'Quiet day, prices drifted a little.')+note;
+  save();
+}
+function save(){store.set('sim',S);renderSim()}
+function trade(id,dir){
+  const q=Math.max(1,parseInt($('#qty').value)||1),a=ASSETS.find(x=>x.id===id),pr=price(a);
+  if(dir>0){const c=Math.min(q,Math.floor(S.cash/pr));if(c<1){S.lesson='Not enough virtual cash for that quantity.';return save()}S.cash-=c*pr;S.hold[id]=(S.hold[id]||0)+c}
+  else{const c=Math.min(q,S.hold[id]||0);if(c<1){S.lesson='You don’t own any of that asset to sell.';return save()}S.cash+=c*pr;S.hold[id]-=c}
+  S.lesson=`${dir>0?'Bought':'Sold'} ${a.n} at ${inr(pr)}. Press “Next day” to see what the market does.`;save();
+}
+function renderSim(){
+  const nw=netw(),pl=nw-100000;
+  $('#nw').textContent=inr(nw);$('#cash').textContent=inr(S.cash);$('#day').textContent='Day '+S.day;
+  $('#pl').innerHTML=`<span class="${pl>=0?'ok':'bad'}">${pl>=0?'+':'−'}${inr(Math.abs(pl))} (${(pl/1000).toFixed(2)}%)</span> <span class="mut">vs ₹1,00,000 start</span>`;
+  const h=S.nw,mn=Math.min(...h),mx=Math.max(...h),rg=(mx-mn)||1;
+  const pts=h.map((v,i)=>`${(i/Math.max(1,h.length-1))*590+5},${112-((v-mn)/rg)*100}`).join(' ');
+  $('#chart').innerHTML=`<polyline fill="none" stroke="var(--pri)" stroke-width="2.5" points="${pts}"/>`;
+  $('#mkt').innerHTML='<tr><th>Asset</th><th>Price</th><th>Today</th><th>You own</th><th></th></tr>'+ASSETS.map(a=>{
+    const arr=S.px[a.id],p=arr[arr.length-1],pv=arr.length>1?arr[arr.length-2]:p,ch=(p/pv-1)*100;
+    return `<tr><td>${a.n}</td><td>${inr(p)}</td><td class="${ch>=0?'ok':'bad'}">${ch>=0?'+':''}${ch.toFixed(1)}%</td><td>${S.hold[a.id]||0}</td><td><div class="row"><button class="p" data-b="${a.id}">Buy</button><button data-x="${a.id}">Sell</button></div></td></tr>`}).join('');
+  $('#mkt').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>trade(b.dataset.b,1));
+  $('#mkt').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>trade(b.dataset.x,-1));
+  if(S.lesson)$('#lesson').innerHTML=S.lesson;
+}
+$('#next').onclick=step;
+$('#next5').onclick=()=>{for(let i=0;i<5;i++)step()};
+$('#reset').onclick=()=>{S=fresh();save()};
+
+/* ---------- Tutor ---------- */
+const KB=[
+ [['compound','interest on interest'],'<b>Compound interest</b> means you earn returns on your earlier returns. ₹10,000 at 10% a year becomes about ₹25,900 in 10 years, because each year’s gain is added to the base. Start early: time does most of the work. Try the calculator below.'],
+ [['sip','systematic'],'A <b>SIP</b> (systematic investment plan) invests a fixed amount in a mutual fund every month. It builds the habit, and buying at different prices over time averages your cost. Returns are not guaranteed, and the value can fall as well as rise.'],
+ [['mutual fund','mutual'],'A <b>mutual fund</b> pools money from many people and a fund manager invests it in shares, bonds or both. You get instant diversification with small amounts. Check the expense ratio and whether the fund is regulated by SEBI.'],
+ [['index fund','index','nifty','sensex'],'An <b>index fund</b> copies a market index such as the Nifty 50, so you own a slice of many companies at low cost. It doesn’t try to beat the market, and many beginners learn with this idea.'],
+ [['budget','50/30/20','50 30 20'],'The <b>50/30/20 rule</b> is a simple start: about 50% for needs (rent, food, transport), 30% for wants, 20% for savings and debt. Adjust it to your life. See the Budget &amp; Goals tab to try it.'],
+ [['emergency'],'An <b>emergency fund</b> is money kept for surprises such as medical bills or job loss. A common target is 3 to 6 months of essential expenses, in an easy-access savings account.'],
+ [['inflation'],'<b>Inflation</b> is the rise in prices over time. If prices rise 6% a year and your savings earn 3%, you lose buying power. This is why people invest for long-term goals rather than keeping everything as cash.'],
+ [['diversif','eggs','basket'],'<b>Diversification</b> means spreading money across different assets so one bad outcome doesn’t sink you. Try it in the simulator: put everything in HypeCoin once, then spread across assets, and compare.'],
+ [['risk','return'],'<b>Risk and return</b> go together: higher possible returns usually come with bigger possible losses. Anyone promising high returns with no risk is selling you a scam.'],
+ [['stock','share'],'A <b>stock</b> is a small ownership share in a company. Prices move with company results and market mood. Single stocks are riskier than funds, so learn with virtual money first.'],
+ [['credit','cibil'],'A <b>credit score</b> (such as CIBIL, 300 to 900) shows lenders how reliably you repay. Pay bills on time, keep card usage low, and avoid too many loan applications.'],
+ [['fd','fixed deposit','savings account'],'A <b>fixed deposit</b> locks your money for a set period at a set interest rate. It is low-risk but returns may barely beat inflation after tax.'],
+ [['scam','fraud','phishing','upi','otp'],'<b>Scam basics:</b> never share OTP, UPI PIN or CVV; don’t trust urgency or guaranteed returns; type official addresses yourself; and use only SEBI-registered advisors. Paste any message into the Scam Detector. Lost money? Call 1930.'],
+ [['sebi'],'<b>SEBI</b> is India’s securities regulator. Check that an advisor or broker is registered on SEBI’s website before trusting them with money.']
+];
+const SUG=['What is a SIP?','Explain compound interest','How do I budget?','Is guaranteed return real?','What is inflation?'];
+$('#sugg').innerHTML=SUG.map(s=>`<button>${s}</button>`).join('');
+$('#sugg').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('#q').value=b.textContent;ask()});
+$('#ask').onclick=ask;$('#q').onkeydown=e=>{if(e.key==='Enter')ask()};
+function ask(){
+  const q=$('#q').value.trim();if(!q)return;$('#q').value='';
+  const l=q.toLowerCase();let best=null,bs=0;
+  KB.forEach(([keys,ans])=>{const s=keys.filter(k=>l.includes(k)).length;if(s>bs){bs=s;best=ans}});
+  if(/guarantee|sure|risk[- ]free|double/.test(l))best=KB[8][1];
+  if(!best)best='I don’t have a lesson on that yet. Try asking about SIPs, compound interest, budgeting, inflation, diversification, credit scores or scams.';
+  const c=$('#chat');c.insertAdjacentHTML('beforeend',`<div class="msg u">${esc(q)}</div><div class="msg a">${best}</div>`);
+  c.lastElementChild.scrollIntoView({block:'nearest'});
+}
+function calc(){
+  const P=+$('#c1').value||0,R=(+$('#c2').value||0)/100/12,Y=+$('#c3').value||0,n=Y*12;
+  const fv=R?P*((Math.pow(1+R,n)-1)/R)*(1+R):P*n,inv=P*n;
+  $('#cres').innerHTML=`You invest <b>${inr(inv)}</b>, it could grow to <b>${inr(fv)}</b>, a gain of <b class="ok">${inr(fv-inv)}</b> in this example.`;
+}
+['c1','c2','c3'].forEach(i=>$('#'+i).oninput=calc);calc();
+
+/* ---------- Budget & goals ---------- */
+function budget(){
+  const inc=+$('#inc').value||0,pn=+$('#pn').value||0,pw=+$('#pw').value||0,ps=+$('#ps').value||0,t=pn+pw+ps;
+  const bar=(n,p,c)=>`<div class="row"><span style="width:90px">${n}</span><div class="meter grow" style="margin:0"><i style="width:${Math.min(100,p)}%;background:${c}"></i></div><b style="width:100px;text-align:right">${inr(inc*p/100)}</b></div>`;
+  $('#bres').innerHTML=bar('Needs',pn,'var(--pri)')+bar('Wants',pw,'var(--warn)')+bar('Savings',ps,'var(--ok)')+(t!==100?`<div class="note">Your percentages add up to ${t}%. Adjust them to total 100%.</div>`:'');
+  const tg=+$('#gt').value||0,sv=+$('#gs').value||0,m=Math.max(1,+$('#gm').value||1),need=Math.max(0,(tg-sv)/m),bucket=inc*ps/100;
+  const pct=tg?Math.min(100,sv/tg*100):0;
+  $('#gres').innerHTML=`<div class="meter"><i style="width:${pct}%;background:var(--pri)"></i></div>
+  <p><b>${esc($('#gn').value||'Goal')}</b>: ${pct.toFixed(0)}% done. Save <b>${inr(need)}</b> a month for ${m} months.
+  ${need<=bucket?`<span class="ok">This fits inside your ${inr(bucket)} savings bucket.</span>`:`<span class="bad">That is more than your ${inr(bucket)} savings bucket. Try more months or a lower target.</span>`}</p>`;
+  store.set('bud',['inc','pn','pw','ps','gn','gt','gs','gm'].map(i=>$('#'+i).value));
+}
+const sv=store.get('bud',null);const ids=['inc','pn','pw','ps','gn','gt','gs','gm'];
+if(sv)ids.forEach((i,k)=>$('#'+i).value=sv[k]);
+ids.forEach(i=>$('#'+i).oninput=budget);budget();
+renderSim();
+</script>
+</body>
+</html>
